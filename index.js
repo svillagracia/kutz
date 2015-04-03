@@ -6,7 +6,7 @@ var app = express();
 var db = require('./models');
 
 var Hashids = require("hashids"),
-    hashids = new Hashids("this is my salt");
+hashids = new Hashids("this is my salt");
 
 app.set('view engine', 'ejs');
 
@@ -21,9 +21,11 @@ app.post('/links',function(req,res){
   db.link.create({longLink: req.body.url}).then(function(data){
     var hash = hashids.encode(data.id);
     data.shortLink = hash;
-    data.save().then(function(encodedData){
-    res.render('links', {encodedData:data.shortLink})
-    });
+    data.save().then(function() {
+      var hashObject = {hash: req.headers.host+'/'+hash};
+      res.render('links', hashObject);
+  // });
+  })
   })
 });
 
